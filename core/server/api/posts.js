@@ -11,7 +11,7 @@ var Promise         = require('bluebird'),
     docName         = 'posts',
     allowedIncludes = [
         'created_by', 'updated_by', 'published_by', 'author', 'tags', 'fields',
-        'next', 'previous', 'next.author', 'next.tags', 'previous.author', 'previous.tags'
+        'next', 'previous', 'next.author', 'next.tags', 'previous.author', 'previous.tags', 'love','all_tags'
     ],
     posts;
 
@@ -81,7 +81,7 @@ posts = {
     read: function read(options) {
         var attrs = ['id', 'slug', 'status', 'uuid'],
             tasks;
-
+        
         /**
          * ### Model Query
          * Make the call to the Model layer
@@ -122,7 +122,6 @@ posts = {
      */
     edit: function edit(object, options) {
         var tasks;
-
         /**
          * ### Model Query
          * Make the call to the Model layer
@@ -130,6 +129,15 @@ posts = {
          * @returns {Object} options
          */
         function modelQuery(options) {
+            var sTags = "";
+            if(options.data.posts[0].tags != null){
+                options.data.posts[0].tags.forEach(function(e){
+                    console.log(e); 
+                    sTags += ("," + e.name);
+                });
+				options.data.posts[0].all_tags = sTags.substring(1);
+            }
+       
             return dataProvider.Post.edit(options.data.posts[0], _.omit(options, ['data']));
         }
 

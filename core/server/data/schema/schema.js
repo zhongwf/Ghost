@@ -19,7 +19,9 @@ module.exports = {
         updated_at: {type: 'dateTime', nullable: true},
         updated_by: {type: 'integer', nullable: true},
         published_at: {type: 'dateTime', nullable: true},
-        published_by: {type: 'integer', nullable: true}
+        published_by: {type: 'integer', nullable: true},
+		love: {type: 'integer', nullable: true},
+		all_tags: {type: 'string', maxlength: 200, nullable: true}
     },
     users: {
         id: {type: 'increments', nullable: false, primary: true},
