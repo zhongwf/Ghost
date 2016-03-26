@@ -1,4 +1,5 @@
-var _           = require('lodash'),
+var serveStatic = require('express').static,
+    _           = require('lodash'),
     fs          = require('fs-extra'),
     http        = require('http'),
     path        = require('path'),
@@ -20,9 +21,8 @@ var _           = require('lodash'),
     mountPoint = '/content/images',
     baseStore = require('../../../core/server/storage/base');
  
-var cf      = require('../../../core/server/config');
-var uuid = require('uuid'); 
-var serveStatic = require('express').static;
+var cf = require('../../../core/server/config');
+var uuid = require('uuid');  
 var utils       = require('../../../core/server/utils');
 
 function QINIUStore(config) {
