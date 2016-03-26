@@ -19,7 +19,11 @@ var _           = require('lodash'),
  
     mountPoint = '/content/images',
     baseStore = require('../../../core/server/storage/base');
+ 
+var cf      = require('../../../core/server/config');
 var uuid = require('uuid'); 
+var serveStatic = require('express').static;
+var utils       = require('../../../core/server/utils');
 
 function QINIUStore(config) {
     options = config;
@@ -29,39 +33,39 @@ function QINIUStore(config) {
  
 util.inherits( QINIUStore, baseStore );
 
-QINIUStore.prototype.save = function (image) {
-    
-    var self = this;
-    var targetDir = self.getTargetDir( mountPoint );
+QINIUStore.prototype.getTargetDir = function (baseDir) { 
+    return baseDir;
+};
 
-    // console.log( 'QINIUStore::options=', options );
-    // console.log( 'QINIUStore::targetDir=', targetDir );
 
-    return new Promise(function (resolve, reject)  {
+QINIUStore.prototype.save = function (image, targetDir) {
+    targetDir = targetDir || this.getTargetDir(cf.paths.imagesPath);
+    var targetFilename;
+	 
 
-        self.getUniqueFileName( self, image, targetDir).then(function (filename) {
+    return this.getUniqueFileName(this, image, targetDir).then(function (filename) {
+		console.log("image.path" + image.path);
+		console.log("filename" + filename); 
+        targetFilename = filename;
+        return Promise.promisify(fs.mkdirs)(targetDir);
+    }).then(function () {
+        return Promise.promisify(fs.copy)(image.path, targetFilename);
+    }).then(function (filename) {
 
+	
+	
             var putPolicy = new qiniu.rs.PutPolicy( options.bucket );
             var uptoken = putPolicy.token();
-            var key = options.prefix + filename;
-
-            // console.log( 'QINIUStore::UPLOAD filename=', filename );
-            // console.log( 'QINIUStore::image.path=', image.path );
-            // console.log( 'QINIUStore::qiniu.conf=', qiniu.conf );
-            // console.log( 'QINIUStore::uptoken=', uptoken );
-            // console.log( 'QINIUStore::UPLOAD key=', key );
+            var key =  path.basename(targetFilename);
 
             // 上传文件到云存储
-            qiniu.io.putFile(uptoken, key, image.path, null, function(err, ret) {
+            Promise.promisify(qiniu.io.putFile)(uptoken, key, image.path, null, function(err, ret) {
 
                 if(!err) {
                   // 上传成功， 处理返回值
-                  // console.log(ret.key, ret.hash);
-                   return resolve( filename );
-				   //console.log("result " + result);
-				   // result;
-                   // return resolve( 'http://7xil42.com1.z0.glb.clouddn.com/lctest/content/images/2015/04/----.png');
-
+				  console.log( 'uplaod ok...');
+                  //var result = resolve( filename );
+				  return filename;
 
                   // ret.key & ret.hash
                 } else {
@@ -70,10 +74,24 @@ QINIUStore.prototype.save = function (image) {
                   return reject( err );
                 }
             });
+			//var result = 'http://7xrinx.com1.z0.glb.clouddn.com/' + outFile; 
+			//console.log( 'result ' + result);
+		    //return result;
 
-        }).catch(function (err)  {
-            console.error('Error', err );
-        });
+    }).then(function () { 
+		console.log( 'then');
+		//var result = "http://7xrinx.com1.z0.glb.clouddn.com/ghost-f903ef21-b621-40ca-afef-c87a9309e01e.jpg";
+		//	console.log( 'result ' + result);
+		//    return result;
+			
+		var fullUrl = (cf.paths.subdir + '/' + cf.paths.imagesRelPath + '/' +
+            path.relative(cf.paths.imagesPath, targetFilename)).replace(new RegExp('\\' + path.sep, 'g'), '/');
+	    console.log( 'fullUrl ' + fullUrl);
+        return fullUrl;			
+		
+    }).catch(function (e) {
+        errors.logError(e);
+        return Promise.reject(e);
     });
 };
  
@@ -114,33 +132,25 @@ QINIUStore.prototype.exists = function (filename ) {
     });
 };
 
-QINIUStore.prototype.getTargetDir = function (baseDir) { 
-    return baseDir;
-};
-
+ 
 
 QINIUStore.prototype.getUniqueFileName = function (store, image, targetDir) {
     var ext = path.extname(image.name),
-        name = options.prefix + uuid.v4(),
+        name = uuid.v4(),
         self = this;
 
     return self.generateUnique(store, targetDir, name, ext, 0);
 };
-
-
  
 QINIUStore.prototype.serve = function () {
+	return serveStatic(cf.paths.imagesPath, {maxAge: utils.ONE_YEAR_MS, fallthrough: false});
+	/*
     return function (req, res, next ) {
 		console.log('QINIUStore.prototype.serve....'  + req.path );
-		var tail = options.prefix + mountPoint + req.path;
-		tail = tail.replace(/\//g,'%5C');
-		tail = tail.replace(/\\/g,'%5C'); 
-		console.log("tail" + tail);
-		
-        res.redirect( 301, options.protocol + '://' + options.domain + '/' + tail );
+        res.redirect( 301, options.protocol + '://' + options.domain + '/' + req.path );
         // next();
-		//return serveStatic(config.paths.imagesPath, {maxAge: utils.ONE_YEAR_MS, fallthrough: false});
     };
+	*/
 };
  
 module.exports = QINIUStore;
