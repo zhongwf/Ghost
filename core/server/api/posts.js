@@ -122,6 +122,7 @@ posts = {
      * @return {Promise(Post)} Edited Post
      */
     edit: function edit(object, options) {
+		console.log("in edit");
         var tasks;
         /**
          * ### Model Query
