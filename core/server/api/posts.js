@@ -89,7 +89,8 @@ posts = {
          * @returns {Object} options
          */
         function modelQuery(options) {
-            return dataProvider.Post.findOne(options.data, _.omit(options, ['data']));
+            var result = dataProvider.Post.findOne(options.data, _.omit(options, ['data']));
+			return result;
         }
 
         // Push all of our tasks into a `tasks` array in the correct order
@@ -129,6 +130,7 @@ posts = {
          * @returns {Object} options
          */
         function modelQuery(options) {
+			
             var sTags = "";
             if(options.data.posts[0].tags != null){
                 options.data.posts[0].tags.forEach(function(e){
@@ -137,7 +139,9 @@ posts = {
                 });
 				options.data.posts[0].all_tags = sTags.substring(1);
             }
-       
+            console.log("sTags " + sTags);
+			//var author = dataProvider.User.findOne(options.data, _.omit(options, ['data']));
+			debugger;
             return dataProvider.Post.edit(options.data.posts[0], _.omit(options, ['data']));
         }
 
