@@ -15,6 +15,7 @@ var _              = require('lodash'),
     roles          = require('./roles'),
     settings       = require('./settings'),
     tags           = require('./tags'),
+	search           = require('./search'),
     clients        = require('./clients'),
     themes         = require('./themes'),
     users          = require('./users'),
@@ -238,6 +239,7 @@ module.exports = {
     themes: themes,
     users: users,
     slugs: slugs,
+	search: search,
     authentication: authentication,
     uploads: uploads
 };
