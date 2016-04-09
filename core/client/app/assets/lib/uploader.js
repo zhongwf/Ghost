@@ -27,6 +27,7 @@ let UploadUi = function ($dropzone, settings) {
                 $dropzone.delay(250).animate({opacity: 100}, 1000, () => {
                     $('.js-button-accept').prop('disabled', false);
                     this.init();
+					$dropzone.trigger('uploadsuccess', [result]);
                 });
             };
 
@@ -47,10 +48,10 @@ let UploadUi = function ($dropzone, settings) {
                 $progress.animate({opacity: 0}, 250, () => {
                     $dropzone.find('span.media').after(`<img class="fileupload-loading" src="${Ghost.subdir}/ghost/img/loadingcat.gif" />`);
                 });
-                $img.one('load', () => {
-                    $dropzone.trigger('uploadsuccess', [result]);
+                $img.one('load', () => { 
+                    
                     animateDropzone($img);
-                }).attr('src', result);
+                }).attr('src', result.replace('http://7xrinx.com1.z0.glb.clouddn.com/','/content/images/'));
             };
             preLoadImage();
         },
@@ -58,7 +59,7 @@ let UploadUi = function ($dropzone, settings) {
         bindFileUpload() {
             $dropzone.find('.js-fileupload').fileupload().fileupload('option', {
                 url: `${Ghost.apiRoot}/uploads/`,
-                add(e, data) {
+                add(e, data) { 
                     /*jshint unused:false*/
                     $('.js-button-accept').prop('disabled', true);
                     $dropzone.find('.js-fileupload').removeClass('right');
@@ -84,7 +85,7 @@ let UploadUi = function ($dropzone, settings) {
                         $progress.find('.js-upload-progress-bar').css('width', `${progress}%`);
                     }
                 },
-                fail: (e, data) => {
+                fail: (e, data) => { 
                     /*jshint unused:false*/
                     $('.js-button-accept').prop('disabled', false);
                     $dropzone.trigger('uploadfailure', [data.result]);
@@ -105,7 +106,7 @@ let UploadUi = function ($dropzone, settings) {
                     });
                 },
                 done: (e, data) => {
-                    /*jshint unused:false*/
+                    /*jshint unused:false*/ 
                     this.complete(data.result);
                 }
             });
