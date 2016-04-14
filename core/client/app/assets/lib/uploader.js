@@ -51,7 +51,7 @@ let UploadUi = function ($dropzone, settings) {
                 $img.one('load', () => { 
                     
                     animateDropzone($img);
-                }).attr('src', result.replace('http://7xrinx.com1.z0.glb.clouddn.com/','/content/images/'));
+                }).attr('src', result.replace('http://s-blog.oss-cn-beijing.aliyuncs.com/','/content/images/'));
             };
             preLoadImage();
         },
